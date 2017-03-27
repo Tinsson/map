@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>地图功能登录页面</title>
+	<link rel="stylesheet" type="text/css" href="./static/css/reset.css">
+  	<link rel="stylesheet/less" type="text/css" href="./static/css/main.less">
+  	<script src="./static/js/jquery.js"></script>
+  	<script src="./static/js/less.min.js"></script>
+</head>
+
+<body>
+<div class="login_bg"></div>
+<div class="login_box">
+	<h1 class="lg_head">地图系统登录</h1>
+	<form class="login_form" action="letmein.php" method="post">
+		<p class="ipt_box">
+			<label class="lg_lb" for="username">用户名：</label>
+			<input class="ipt" id="username" type="text" name="username" autocomplete="off" placeholder="请输入用户名"/>
+		</p>
+		<p class="ipt_box">
+			<label class="lg_lb" for="mobile">手机号码：</label>
+			<input class="ipt" id="mobile" type="text" autocomplete="off" placeholder="请输入手机号码"/>
+		</p>
+		<p class="ipt_box">
+			<label for="pwd" class="lg_lb">验证码：</label>
+			<input class="ipt" id="pwd" style="width:150px" type="password" name="pwd" placeholder="请输入验证码" autocomplete="off"/>
+			<a href="javascript:;" id="getcode">获取验证码</a>
+			<span class="time">（<em class="count">60</em>）重发</span>
+		</p>
+		<input class="lg_sub" type="submit" value="登陆" />
+		<input id="hda" type="hidden" name="a" value="letmein" />
+	</form>
+</div>
+<script>
+	$("#getcode").click(function(){
+		var phone = $("#mobile").val();
+		var reg = /^[1][34578][0-9]{9}$/;
+		if(!reg.test(phone)){
+			alert("请输入正确的手机号码");
+		}else{
+			$.ajax({
+				type: "post",
+				url: "letmein.php",
+				data: {mobile: phone,a: "ajaxCode"},
+				dataType: "json",
+				success: function(d){
+					if(d.state == 1){
+						alert(d.msg);
+						resend();
+					}else{
+						alert(d.msg);
+					}
+				}
+			})
+		}
+	})
+	function resend(){
+		var count = $(".count");
+		var countBox = $(".time");
+		var getcode = $("#getcode");
+		var co = count.text();
+		getcode.hide();
+		countBox.show();
+		var settime = function(){
+	      if(co == 0){
+	        count.text(60);
+	        countBox.hide();
+	        getcode.show();
+	        return false;
+	      }else{
+	        --co;
+	        count.text(co);
+	      }
+	      var t = setTimeout(function(){
+	            settime();
+	          },1000);
+	    }
+	    settime();
+	}
+
+	
+
+</script>
+</body>
+</html>
