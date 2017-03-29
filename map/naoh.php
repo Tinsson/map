@@ -167,6 +167,11 @@ $res = $db->query($sql);
                             <label for="lat" class="fix_lb">北纬：</label>
                             <input id="lat" class="fix_ipt" type="text" name="lat" />
                         </p>
+                        <p class="fix_group">
+                            <label for="lat" class="fix_lb">状态：</label>
+                            <input id="build1" class="fix_rad" type="radio" name="is_zj" value="1" checked><label for="build1" class="rad_msg">在建</label>
+                            <input id="build2" class="fix_rad" type="radio" name="is_zj" value="0"><label for="build2" class="rad_msg">已建成</label>
+                        </p>
                         <p class="fix_group clearfix">
                             <label for="detail" class="fix_lb" style="float:left">详情信息：</label>
                             <textarea id="detail" class="fix_txt" name="item_detail"></textarea>
@@ -191,7 +196,10 @@ $res = $db->query($sql);
                         <?php if ($res) { ?>
                             <?php foreach ($res as $k => $v) { ?>
                                 <tr>
-                                    <td><?php echo $v['item_name']; ?></td>
+                                    <td class="clearfix">
+                                        <span class="itname" title="<?php echo $v['item_name']; ?>"><?php echo $v['item_name']; ?></span>
+                                        <span class="item_state" title="在建设中" data-zj="1">在建</span>
+                                    </td>
                                     <td><?php echo $v['lat']; ?></td>
                                     <td><?php echo $v['lng']; ?></td>
                                     <td class="text_td" title="<?php echo $v['item_detail']; ?>"><?php echo $v['item_detail']; ?></td>
@@ -237,7 +245,15 @@ $res = $db->query($sql);
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="editlat" name="lat" placeholder="请输入北纬信息">
                             </div>
-                        </div><div class="form-group">
+                        </div>
+                        <div class="form-group">
+                            <label for="editlat" class="col-sm-2 control-label edtip">状态：</label>
+                            <div class="col-sm-9" style="padding-top: 6px;">
+                                <input id="edzj1" type="radio" id="state" name="is_zj" value="1"><label class="edzj_lb" for="edzj1">在建</label>
+                                <input id="edzj2" type="radio" id="state" name="is_zj" value="0"><label class="edzj_lb" for="edzj2">已完成</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label for="editdetail" class="col-sm-2 control-label edtip">详情：</label>
                             <div class="col-sm-9">
                                 <textarea class="form-control" id="editdetail" rows="3" name="item_detail" placeholder="请输入详情"></textarea>
@@ -276,7 +292,10 @@ $res = $db->query($sql);
         $(".editBtn").click(function(){
             var rec_id = $(this).parent().find(".rec_id").val();
             var detail = $(this).parent().find(".td_detail").val();
-            var item_name = $(this).parent().parent().find("td").eq(0).text();
+
+            var item_name = $(this).parent().parent().find(".itname").text();
+            var is_zj = $(this).parent().parent().find(".item_state").data("zj");
+
             var lat = $(this).parent().parent().find("td").eq(1).text();
             var lng = $(this).parent().parent().find("td").eq(2).text();
             $("#edit_id").val(rec_id);
@@ -284,15 +303,26 @@ $res = $db->query($sql);
             $("#editlat").val(lat);
             $("#editlng").val(lng);
             $("#editdetail").val(detail);
+            if(is_zj == 1){
+                $("#edzj1").attr("checked",true);
+            }else{
+                $("#edzj2").attr("checked",true);
+            }
         })
-        $("#ed_commit").click(function(){
+        $("#ed_commit").click(function(e){
             if(confirm("确认修改此信息？")){
                 var rec_id = $("#edit_id").val(),
                     item_name = $("#editname").val(),
                     lat = $("#editlat").val(),
                     lng = $("#editlng").val(),
                     item_detail = $("#editdetail").val();
-                $.ajax({
+                if($("#edzj1")[0].checked){
+                    var is_zj = 1;
+                }else{
+                    var is_zj = 0;
+                }
+                e.preventDefault();
+                /*$.ajax({
                     type: "post",
                     url: "naoh.php",
                     data: {action: "ajaxEdit",rec_id: rec_id,item_name: item_name,item_detail: item_detail,lat: lat,lng: lng},
@@ -306,7 +336,7 @@ $res = $db->query($sql);
                             window.location.reload();
                         }
                     }
-                })
+                })*/
             }
         })
     </script>

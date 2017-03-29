@@ -3,15 +3,16 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
 	<style type="text/css">
 		body, html{width: 100%;height: 100%;margin:0;font-family:"微软雅黑";}
 		#allmap{height:100%;width:100%;}
 		#r-result{width:100%;}
 	</style>
     <link rel="stylesheet" type="text/css" href="./static/css/reset.css">
-    <link rel="stylesheet/less" type="text/css" href="./static/css/main.less">
+    <link rel="stylesheet" type="text/css" href="./static/css/main.css">
     <script src="./static/js/jquery.js"></script>
-    <script src="./static/js/less.min.js"></script>
 	<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=cU1mt0H6eDeT7stCr52HWzOyjH00dIQg"></script>
 	<title>Map_application</title>
 </head>
@@ -30,15 +31,20 @@
 <script src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
 <script type="text/javascript">
 	// 百度地图API功能
-    
+    var dwidth = $("body").width();
     var map = new BMap.Map("allmap");
 	var point = new BMap.Point(122.11, 30.06);
     map.enableScrollWheelZoom();
-    map.centerAndZoom(point, 13);
+    if(dwidth < 560){
+        map.centerAndZoom(point, 11);
+    }else{
+        map.centerAndZoom(point, 13);
+    }
     var myIcon = new BMap.Icon("./static/images/mark1.png", new BMap.Size(30,36));
     var marker2 = new BMap.Marker(point,{icon:myIcon});
     var opts = {};
     var markarr = [];
+    var windowarr = [];
     $.ajax({
         url:'naoh.php',
         type:'POST',
@@ -72,6 +78,7 @@
                 });
                 addClickHandler(content, n);
                 markarr.push(n);
+                windowarr.push(content);
             }
         }
     })
@@ -136,6 +143,7 @@
             var point = new BMap.Point(lng, lat);
             map.setCenter(point);
             var t = setTimeout("bmpclick("+lng+","+lat+")",50);
+            $(this).parent().hide();
         })
     }
 
@@ -147,12 +155,18 @@
             throttle(connect);
         }
     })
+    function showview(content, mark){
+        var point = new BMap.Point(mark.getPosition().lng, mark.getPosition().lat);
+        var infoWindow = new BMap.InfoWindow(content, opts);
+        map.openInfoWindow(infoWindow, point);
+        map.centerAndZoom(point, 15);
+    }
     function bmpclick(lng,lat){
         for(var i in markarr){
             var mlng = markarr[i].getPosition().lng;
                 mlat = markarr[i].getPosition().lat;
             if(mlng == lng && mlat == lat){
-                $(".BMap_Marker")[i].click();
+                showview(windowarr[i],markarr[i]);
             }
         }
     }
